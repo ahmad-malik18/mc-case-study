@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MasterClass Executive — Re-engagement Email Simulator (Before/After)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mc-black: #0a0a0a;
+  --mc-gold: #c8a951;
+  --mc-red: #e63946;
+  --mc-green: #22c55e;
+  --mc-white: #ffffff;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #111; color: var(--mc-white); font-family: var(--font-body); padding: 0; min-height: 100vh; display: flex; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; top: 0; right: 0;
+  width: 320px; height: 100vh;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000; overflow-y: auto; padding: 24px 20px;
+}
+.sidebar h3 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 16px; }
+.sidebar h4 { font-size: 13px; font-weight: 700; margin-top: 20px; margin-bottom: 10px; }
+.change-list { list-style: none; margin-bottom: 8px; }
+.change-item { display: flex; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.65); padding: 5px 0; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.change-new { color: var(--mc-green); }
+.change-removed { color: var(--mc-red); }
+.metrics-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-top: 16px; }
+.metric-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; }
+.metric-label { color: rgba(255,255,255,0.5); }
+.metric-val { font-weight: 700; }
+.metric-before { color: rgba(255,255,255,0.4); }
+.metric-after { color: var(--mc-green); }
+.metric-arrow { color: rgba(255,255,255,0.3); margin: 0 6px; }
+
+/* ─── TOGGLE ─── */
+.view-toggle {
+  position: fixed; top: 16px; left: calc(50% - 160px); z-index: 1001;
+  display: flex; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border-radius: 100px; border: 1px solid rgba(255,255,255,0.12); overflow: hidden;
+}
+.toggle-btn { padding: 10px 24px; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; background: none; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.25s; }
+.toggle-btn.active { background: var(--mc-gold); color: var(--mc-black); }
+
+/* ─── MAIN ─── */
+.main { flex: 1; margin-right: 320px; padding: 40px; }
+
+.page-header { text-align: center; margin-bottom: 40px; padding-top: 30px; }
+.page-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.page-subtitle { font-size: 14px; color: rgba(255,255,255,0.45); }
+
+/* ─── BEFORE STATE ─── */
+.before-state { text-align: center; padding: 80px 40px; }
+.before-state .empty-icon { font-size: 48px; margin-bottom: 20px; opacity: 0.3; }
+.before-state h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: 12px; color: rgba(255,255,255,0.6); }
+.before-state p { font-size: 15px; color: rgba(255,255,255,0.4); max-width: 440px; margin: 0 auto 24px; line-height: 1.6; }
+.before-tag { display: inline-block; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #ef4444; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 7px 14px; border-radius: 6px; }
+
+/* ─── AFTER STATE ─── */
+.after-state { display: none; }
+.after-state.visible { display: block; }
+.before-state.hidden { display: none; }
+
+.segment-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 40px; flex-wrap: wrap; }
+.segment-btn {
+  padding: 8px 16px; font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.5); border-radius: 7px; cursor: pointer; transition: all 0.2s;
+}
+.segment-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--mc-white); }
+.segment-btn.active { background: var(--mc-gold); color: var(--mc-black); border-color: var(--mc-gold); }
+.segment-btn .ct { font-size: 10px; opacity: 0.7; margin-left: 3px; }
+
+.timeline-container { max-width: 800px; margin: 0 auto; }
+.tl-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 16px; }
+
+.email-seq { display: flex; flex-direction: column; position: relative; }
+.email-seq::before { content:''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.06); }
+
+.email-node { display: flex; gap: 20px; padding: 10px 0; position: relative; opacity: 0; transform: translateX(-16px); animation: slideIn 0.35s ease forwards; }
+.email-node:nth-child(1){animation-delay:0.1s} .email-node:nth-child(2){animation-delay:0.22s} .email-node:nth-child(3){animation-delay:0.34s} .email-node:nth-child(4){animation-delay:0.46s} .email-node:nth-child(5){animation-delay:0.58s}
+@keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+.node-marker { width: 36px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 1; }
+.node-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; background: #111; }
+.node-time { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 4px; white-space: nowrap; text-align: center; }
+
+.email-card {
+  flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; overflow: hidden; transition: all 0.2s; cursor: pointer;
+}
+.email-card:hover { border-color: rgba(200,169,81,0.25); background: rgba(255,255,255,0.05); }
+.email-card.expanded .email-body { display: block; }
+
+.email-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.email-icon { width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.email-meta { flex: 1; min-width: 0; }
+.email-subject { font-size: 13px; font-weight: 600; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-preview { font-size: 11px; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-stats { display: flex; gap: 8px; flex-shrink: 0; }
+.stat-pill { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 100px; white-space: nowrap; }
+.stat-open { background: rgba(34,197,94,0.12); color: #22c55e; }
+.stat-click { background: rgba(200,169,81,0.12); color: var(--mc-gold); }
+
+.email-body { display: none; padding: 0 16px 16px; }
+.email-body-inner { background: rgba(255,255,255,0.02); border-radius: 8px; padding: 16px; margin-top: 10px; }
+.email-from { font-size: 10px; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+.email-content { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.65; }
+.email-content p { margin-bottom: 10px; }
+.email-cta-btn { display: inline-block; background: var(--mc-gold); color: var(--mc-black); font-size: 12px; font-weight: 700; padding: 8px 20px; border-radius: 5px; text-decoration: none; margin-top: 6px; }
+.highlight { color: var(--mc-gold); font-weight: 600; }
+
+.summary-metrics { max-width: 800px; margin: 32px auto 0; display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.sm-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 14px; text-align: center; }
+.sm-val { font-size: 22px; font-weight: 700; margin-bottom: 3px; }
+.sm-label { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.proto-label { position: fixed; bottom: 24px; right: 340px; background: var(--mc-red); color: white; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; z-index: 1001; }
+</style>
+</head>
+<body>
+
+<div class="proto-label">Prototype — Bet 3 (Re-engagement)</div>
+
+<div class="view-toggle">
+  <button class="toggle-btn active" id="btnBefore" onclick="showBefore()">Before: No Sequences</button>
+  <button class="toggle-btn" id="btnAfter" onclick="showAfter()">After: Segmented Lifecycle</button>
+</div>
+
+<div class="sidebar">
+  <h3>Changes Highlighted</h3>
+
+  <h4>Before (Current State)</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-removed">&minus;</span> Single generic "complete your application" email</li>
+    <li class="change-item"><span class="change-removed">&minus;</span> No segmentation by drop-off point</li>
+    <li class="change-item"><span class="change-removed">&minus;</span> No urgency mechanics</li>
+    <li class="change-item"><span class="change-removed">&minus;</span> No cross-sell to existing MC users</li>
+  </ul>
+
+  <h4>After (Proposed)</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-new">+</span> 5 distinct segments with tailored sequences</li>
+    <li class="change-item"><span class="change-new">+</span> Prompt preview in first email (addresses H6)</li>
+    <li class="change-item"><span class="change-new">+</span> Progress-based CTAs ("You're 66% done")</li>
+    <li class="change-item"><span class="change-new">+</span> Escape hatches (written alternative, phone recording)</li>
+    <li class="change-item"><span class="change-new">+</span> Social proof + countdown in every sequence</li>
+    <li class="change-item"><span class="change-new">+</span> MC subscriber cross-sell sequence</li>
+    <li class="change-item"><span class="change-new">+</span> Projected metrics per segment</li>
+  </ul>
+
+  <div class="metrics-card">
+    <h4 style="margin-top:0">Success Metrics</h4>
+    <div class="metric-row">
+      <span class="metric-label">Re-engage -> completion</span>
+      <span class="metric-val"><span class="metric-before">~0%</span><span class="metric-arrow">&rarr;</span><span class="metric-after">10-15%</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Additional completions</span>
+      <span class="metric-val"><span class="metric-before">0</span><span class="metric-arrow">&rarr;</span><span class="metric-after">~2,000</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Email open rate (avg)</span>
+      <span class="metric-val"><span class="metric-after">35-50%</span></span>
+    </div>
+    <div class="metric-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;margin-top:4px">
+      <span class="metric-label" style="color:var(--mc-gold)">Recovered paid seats</span>
+      <span class="metric-val" style="color:var(--mc-gold);font-size:11px">~50-100</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div class="page-title">Re-engagement Email Sequences</div>
+    <div class="page-subtitle">Segmented lifecycle flows to recover abandoned applicants</div>
+  </div>
+
+  <div class="before-state" id="beforeState">
+    <div class="empty-icon">&#128233;</div>
+    <h2>No Re-engagement Sequences Exist</h2>
+    <p>Today, abandoned applicants get a single generic email (if any). No segmentation, no urgency, no tailored messaging based on where they dropped off.</p>
+    <div class="before-tag">Thousands of warm leads going cold</div>
+  </div>
+
+  <div class="after-state" id="afterState">
+    <div class="segment-bar" id="segBar"></div>
+    <div class="timeline-container" id="tlContainer"></div>
+    <div class="summary-metrics" id="sumMetrics"></div>
+  </div>
+</div>
+
+<script>
+const segs={
+  postInfo:{label:'Post-Info, Pre-Video',color:'#e63946',metrics:{sent:'~65K',open:'48%',click:'18%',complete:'12%'},emails:[
+    {delay:'+30m',icon:'&#128218;',bg:'rgba(200,169,81,0.15)',ic:'#c8a951',dc:'#c8a951',subj:'Your 3 video prompts — prepare at your pace',prev:'Here\'s exactly what we\'ll ask...',stats:{o:'62%',c:'28%'},from:'MC Executive Admissions',body:'<p>Thanks for starting your application. Here are your <span class="highlight">3 prompts</span> so you can prepare:</p><p><strong>1.</strong> Biggest challenge + how AI could help?<br><strong>2.</strong> Time you learned something new to succeed.<br><strong>3.</strong> What you\'d bring to the community.</p><p>90 sec each. Most finish in <span class="highlight">under 10 min</span>.</p><a href="#" class="email-cta-btn">Start Recording &rarr;</a>'},
+    {delay:'+24h',icon:'&#9654;',bg:'rgba(34,197,94,0.15)',ic:'#22c55e',dc:'#22c55e',subj:'Ready when you are — your video link',prev:'Takes 8-12 min. Save and return anytime.',stats:{o:'51%',c:'22%'},from:'MC Executive',body:'<p>Your video application is ready.</p><p>&#9201; <strong>8-12 min</strong> | &#127909; <strong>3 prompts</strong> | &#128190; <strong>Save & return</strong></p><a href="#" class="email-cta-btn">Record Now &rarr;</a>'},
+    {delay:'+3d',icon:'&#128200;',bg:'rgba(200,169,81,0.15)',ic:'#c8a951',dc:'#c8a951',subj:'892 professionals applied this week',prev:'Directors from Google, Amazon, Nike joining.',stats:{o:'44%',c:'15%'},from:'MC Executive',body:'<p><span class="highlight">892 professionals</span> applied this week. Only <span class="highlight">280 seats left</span>.</p><p>Your info form is done — one video away.</p><a href="#" class="email-cta-btn">Finish Application &rarr;</a>'},
+    {delay:'+7d',icon:'&#9200;',bg:'rgba(239,68,68,0.15)',ic:'#ef4444',dc:'#ef4444',subj:'7 days left — your spot is reserved',prev:'You\'ve already started. Finish in 10 min.',stats:{o:'52%',c:'20%'},from:'MC Executive Admissions',body:'<p><strong>7 days left.</strong> You\'ve done the hardest part. All that\'s left: <span class="highlight">10-minute video</span>.</p><a href="#" class="email-cta-btn">Complete Application &rarr;</a>'},
+    {delay:'+12d',icon:'&#128293;',bg:'rgba(239,68,68,0.15)',ic:'#ef4444',dc:'#ef4444',subj:'Final 48 hours — 127 seats left',prev:'Last reminder. Founding cohort closes Thursday.',stats:{o:'56%',c:'24%'},from:'MC Executive',body:'<p><span class="highlight">127 seats. 48 hours.</span> Complete now + get a <span class="highlight">free Ray Dalio preview module</span>.</p><a href="#" class="email-cta-btn">Apply Now — Final Chance &rarr;</a>'}
+  ]},
+  midKira:{label:'Mid-Kira Drop',color:'#457b9d',metrics:{sent:'~22K',open:'42%',click:'15%',complete:'10%'},emails:[
+    {delay:'+1h',icon:'&#128170;',bg:'rgba(69,123,157,0.15)',ic:'#457b9d',dc:'#457b9d',subj:'Trouble with video? Here are alternatives',prev:'Record from phone, or submit written responses.',stats:{o:'55%',c:'20%'},from:'MC Executive Support',body:'<p>Options:</p><p>&#128241; <strong>Phone:</strong> Open this on your phone.<br>&#128221; <strong>Written:</strong> Same 3 prompts, typed.<br>&#128190; <strong>Progress saved.</strong></p><a href="#" class="email-cta-btn">Resume &rarr;</a>'},
+    {delay:'+2d',icon:'&#127911;',bg:'rgba(69,123,157,0.15)',ic:'#457b9d',dc:'#457b9d',subj:'Recording is easier than you think',prev:'Example: "I recorded at my kitchen table in 8 min."',stats:{o:'38%',c:'12%'},from:'MC Executive',body:'<p><em>"Recorded at my kitchen table in a t-shirt. 8 minutes."</em> — Director at Stripe</p><p>You\'re <span class="highlight">60% done</span>.</p><a href="#" class="email-cta-btn">Finish in 10 Min &rarr;</a>'},
+    {delay:'+5d',icon:'&#9200;',bg:'rgba(239,68,68,0.15)',ic:'#ef4444',dc:'#ef4444',subj:'Application expires in 9 days',prev:'You\'re halfway done.',stats:{o:'45%',c:'18%'},from:'MC Executive',body:'<p>&#10003; Info form: <span class="highlight">Done</span><br>&#10003; Setup: <span class="highlight">Done</span><br>&#9744; 3 prompts: <strong>5 min left</strong></p><a href="#" class="email-cta-btn">Finish Now &rarr;</a>'}
+  ]},
+  midAssess:{label:'Mid-Assessment',color:'#2a9d8f',metrics:{sent:'~11K',open:'58%',click:'30%',complete:'22%'},emails:[
+    {delay:'+30m',icon:'&#127919;',bg:'rgba(42,157,143,0.15)',ic:'#2a9d8f',dc:'#2a9d8f',subj:'You\'re 66% done — 5 minutes left',prev:'2 of 3 prompts complete. One more.',stats:{o:'68%',c:'38%'},from:'MC Executive',body:'<p><span class="highlight">2 of 3 done.</span> Last prompt: <em>"What would you bring to the community?"</em></p><p>90 seconds. Then submitted.</p><a href="#" class="email-cta-btn">Record Final Prompt &rarr;</a>'},
+    {delay:'+24h',icon:'&#128640;',bg:'rgba(42,157,143,0.15)',ic:'#2a9d8f',dc:'#2a9d8f',subj:'One prompt away from founding cohort',prev:'First two received. Record #3 to submit.',stats:{o:'55%',c:'28%'},from:'MC Executive',body:'<p>First two responses received. Record #3 and you\'re submitted. <span class="highlight">195 seats left.</span></p><a href="#" class="email-cta-btn">Record Prompt 3 &rarr;</a>'}
+  ]},
+  preInfo:{label:'Pre-Info (LP Only)',color:'#8b5cf6',metrics:{sent:'~990K',open:'22%',click:'5%',complete:'3%'},emails:[
+    {delay:'+1d',icon:'&#128075;',bg:'rgba(139,92,246,0.15)',ic:'#8b5cf6',dc:'#8b5cf6',subj:'30 seconds to start your application',prev:'Chicago Booth + AI + world-class instructors. $2,500.',stats:{o:'28%',c:'8%'},from:'MC Executive',body:'<p>&#127891; Chicago Booth certificate<br>&#129302; AI curriculum<br>&#127775; Dalio, Nooyi, Cuban<br>&#128176; $2,500 (or $625/mo)<br>&#9201; 30 sec to start</p><a href="#" class="email-cta-btn">Start Application &rarr;</a>'},
+    {delay:'+5d',icon:'&#128161;',bg:'rgba(139,92,246,0.15)',ic:'#8b5cf6',dc:'#8b5cf6',subj:'Why 1,200+ professionals are applying',prev:'From Google, McKinsey, Nike.',stats:{o:'24%',c:'6%'},from:'MC Executive',body:'<p><span class="highlight">1,200+ professionals</span> from Google, McKinsey, Nike. Avg 12 yrs experience.</p><a href="#" class="email-cta-btn">See If You\'re a Fit &rarr;</a>'}
+  ]},
+  mcSub:{label:'MC Subscriber (Cross-Sell)',color:'#c8a951',metrics:{sent:'~500K',open:'35%',click:'10%',complete:'5%'},emails:[
+    {delay:'Day 1',icon:'&#11088;',bg:'rgba(200,169,81,0.15)',ic:'#c8a951',dc:'#c8a951',subj:'You loved Ray Dalio\'s class. Now learn from him live.',prev:'Early access for MC members.',stats:{o:'42%',c:'14%'},from:'MasterClass',body:'<p>You\'ve watched <span class="highlight">12 hrs of Dalio\'s Principles</span>. What if you could go deeper?</p><p><strong>MasterClass Executive</strong> — Chicago Booth certificate, AI-powered. As a member, <span class="highlight">apply before the public</span>.</p><a href="#" class="email-cta-btn">Learn More &rarr;</a>'},
+    {delay:'+3d',icon:'&#128172;',bg:'rgba(200,169,81,0.15)',ic:'#c8a951',dc:'#c8a951',subj:'"Executive will change my career."',prev:'Hear from a subscriber who applied.',stats:{o:'38%',c:'11%'},from:'MC Executive',body:'<p><em>"Been a subscriber 3 years. Saw Executive — Booth, AI, $2,500 — applied same day."</em></p><a href="#" class="email-cta-btn">Apply for Founding Cohort &rarr;</a>'},
+    {delay:'+7d',icon:'&#128274;',bg:'rgba(200,169,81,0.15)',ic:'#c8a951',dc:'#c8a951',subj:'Early access ends in 3 days',prev:'Member-exclusive window closing.',stats:{o:'45%',c:'16%'},from:'MasterClass',body:'<p><span class="highlight">Early access closes in 3 days.</span> Apply now for priority review.</p><a href="#" class="email-cta-btn">Apply with Early Access &rarr;</a>'}
+  ]}
+};
+
+const segOrder=['postInfo','midKira','midAssess','preInfo','mcSub'];
+
+function buildSegBar(){
+  const bar=document.getElementById('segBar');
+  bar.innerHTML=segOrder.map((k,i)=>`<button class="segment-btn${i===0?' active':''}" onclick="showSeg('${k}',this)">${segs[k].label}<span class="ct">(${segs[k].metrics.complete})</span></button>`).join('');
+}
+
+function showSeg(key,btn){
+  const s=segs[key];
+  document.querySelectorAll('.segment-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const tc=document.getElementById('tlContainer');
+  let h=`<div class="tl-label">${s.label} — Sequence</div><div class="email-seq">`;
+  s.emails.forEach(e=>{
+    h+=`<div class="email-node"><div class="node-marker"><div class="node-dot" style="border-color:${e.dc}"></div><div class="node-time">${e.delay}</div></div><div class="email-card" onclick="this.classList.toggle('expanded')"><div class="email-header"><div class="email-icon" style="background:${e.bg};color:${e.ic}">${e.icon}</div><div class="email-meta"><div class="email-subject">${e.subj}</div><div class="email-preview">${e.prev}</div></div><div class="email-stats"><span class="stat-pill stat-open">${e.stats.o} open</span><span class="stat-pill stat-click">${e.stats.c} click</span></div></div><div class="email-body"><div class="email-body-inner"><div class="email-from">From: ${e.from}</div><div class="email-content">${e.body}</div></div></div></div></div>`;
+  });
+  h+='</div>';
+  tc.innerHTML=h;
+  const sm=document.getElementById('sumMetrics');
+  sm.innerHTML=`<div class="sm-box"><div class="sm-val" style="color:${s.color}">${s.metrics.sent}</div><div class="sm-label">Sent</div></div><div class="sm-box"><div class="sm-val" style="color:${s.color}">${s.metrics.open}</div><div class="sm-label">Open Rate</div></div><div class="sm-box"><div class="sm-val" style="color:${s.color}">${s.metrics.click}</div><div class="sm-label">Click Rate</div></div><div class="sm-box"><div class="sm-val" style="color:${s.color}">${s.metrics.complete}</div><div class="sm-label">Complete</div></div>`;
+}
+
+function showBefore(){
+  document.getElementById('beforeState').classList.remove('hidden');
+  document.getElementById('afterState').classList.remove('visible');
+  document.getElementById('btnBefore').classList.add('active');
+  document.getElementById('btnAfter').classList.remove('active');
+}
+function showAfter(){
+  document.getElementById('beforeState').classList.add('hidden');
+  document.getElementById('afterState').classList.add('visible');
+  document.getElementById('btnAfter').classList.add('active');
+  document.getElementById('btnBefore').classList.remove('active');
+  buildSegBar();
+  showSeg('postInfo',document.querySelector('.segment-btn'));
+}
+</script>
+</body>
+</html>

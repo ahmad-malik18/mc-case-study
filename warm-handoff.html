@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MasterClass Executive — Warm Handoff (Before/After)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mc-black: #0a0a0a;
+  --mc-gold: #c8a951;
+  --mc-gold-light: #e8d48b;
+  --mc-white: #ffffff;
+  --mc-green: #22c55e;
+  --mc-red: #e63946;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--mc-black); color: var(--mc-white); font-family: var(--font-body); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; top: 0; right: 0;
+  width: 320px; height: 100vh;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 24px 20px;
+  transition: transform 0.3s;
+}
+.sidebar.collapsed { transform: translateX(280px); }
+.sidebar-toggle {
+  position: absolute; left: -36px; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 72px;
+  background: rgba(20,20,20,0.95);
+  border: 1px solid rgba(255,255,255,0.08); border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: rgba(255,255,255,0.5); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.sidebar h3 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 16px; }
+.sidebar h4 { font-size: 13px; font-weight: 700; margin-top: 20px; margin-bottom: 10px; }
+.change-list { list-style: none; margin-bottom: 8px; }
+.change-item { display: flex; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.65); padding: 6px 0; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.change-icon { flex-shrink: 0; font-size: 14px; }
+.change-new { color: var(--mc-green); }
+.change-removed { color: var(--mc-red); }
+.metrics-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-top: 16px; }
+.metric-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 12px; }
+.metric-label { color: rgba(255,255,255,0.5); }
+.metric-val { font-weight: 700; }
+.metric-before { color: rgba(255,255,255,0.4); }
+.metric-after { color: var(--mc-green); }
+.metric-arrow { color: rgba(255,255,255,0.3); margin: 0 6px; }
+
+/* ─── TOGGLE ─── */
+.view-toggle {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1001;
+  display: flex; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border-radius: 100px; border: 1px solid rgba(255,255,255,0.12); overflow: hidden;
+}
+.toggle-btn { padding: 10px 24px; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; background: none; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.25s; }
+.toggle-btn.active { background: var(--mc-gold); color: var(--mc-black); }
+
+.main-content { margin-right: 320px; flex: 1; display: flex; flex-direction: column; }
+
+/* ─── NAV ─── */
+.nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 48px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.nav-logo { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+.nav-logo span { color: var(--mc-gold); }
+
+/* ─── BEFORE STATE ─── */
+.state-before {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 48px; text-align: center;
+}
+.before-check { width: 72px; height: 72px; border-radius: 50%; background: var(--mc-green); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 24px; }
+.before-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 16px; }
+.before-body { font-size: 16px; color: rgba(255,255,255,0.6); max-width: 420px; line-height: 1.6; margin-bottom: 32px; }
+.dead-end-tag { display: inline-block; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 16px; border-radius: 6px; }
+
+/* ─── AFTER STATE ─── */
+.state-after { flex: 1; display: none; padding: 50px 48px 80px; }
+.state-after.visible { display: block; }
+.state-before.hidden { display: none; }
+
+.handoff-header { text-align: center; margin-bottom: 40px; }
+.handoff-check { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,var(--mc-gold),var(--mc-gold-light)); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; color: var(--mc-black); }
+.handoff-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.handoff-subtitle { font-size: 15px; color: rgba(255,255,255,0.55); max-width: 480px; margin: 0 auto; }
+
+.handoff-grid { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; }
+.card-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 16px; }
+.card-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mc-gold); }
+
+.prompt-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.prompt-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px; }
+.prompt-num { font-size: 10px; font-weight: 700; color: var(--mc-gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.prompt-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+.prompt-meta { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 6px; }
+
+.prep-tip { margin-top: 16px; background: rgba(200,169,81,0.08); border: 1px solid rgba(200,169,81,0.15); border-radius: 8px; padding: 12px 14px; font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.5; }
+.prep-tip strong { color: var(--mc-gold); }
+
+.right-stack { display: flex; flex-direction: column; gap: 16px; }
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-icon { width: 26px; height: 26px; border-radius: 7px; background: rgba(200,169,81,0.12); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+.flow-step { display: flex; gap: 10px; padding: 6px 0; }
+.flow-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--mc-gold); background: var(--mc-black); flex-shrink: 0; margin-top: 3px; }
+.flow-dot.filled { background: var(--mc-gold); }
+.flow-label { font-size: 12px; font-weight: 600; }
+.flow-detail { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+.example-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px 14px; }
+.example-label { font-size: 10px; font-weight: 700; color: var(--mc-gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.example-text { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.55; font-style: italic; }
+
+.handoff-cta { max-width: 760px; margin: 32px auto 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.start-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--mc-gold); color: var(--mc-black); font-family: var(--font-body); font-size: 15px; font-weight: 700; padding: 14px 44px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.25s; }
+.start-btn:hover { background: var(--mc-gold-light); transform: translateY(-1px); }
+.later-link { font-size: 12px; color: rgba(255,255,255,0.45); }
+.later-link strong { color: rgba(255,255,255,0.65); cursor: pointer; }
+.timer-badge { font-size: 11px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.04); padding: 5px 12px; border-radius: 100px; }
+
+.proto-label { position: fixed; bottom: 24px; right: 340px; background: var(--mc-red); color: white; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; z-index: 1001; }
+</style>
+</head>
+<body>
+
+<div class="proto-label">Prototype — Bet 2 (Warm Handoff)</div>
+
+<div class="view-toggle">
+  <button class="toggle-btn active" id="btnBefore" onclick="showBefore()">Before: Dead End</button>
+  <button class="toggle-btn" id="btnAfter" onclick="showAfter()">After: Warm Handoff</button>
+</div>
+
+<div class="sidebar">
+  <button class="sidebar-toggle" onclick="this.parentElement.classList.toggle('collapsed')">&#9664;</button>
+  <h3>Changes Highlighted</h3>
+
+  <h4>Removed</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon change-removed">&minus;</span> "You're All Set" dead end with no next step</li>
+    <li class="change-item"><span class="change-icon change-removed">&minus;</span> "Check your email" as only CTA</li>
+  </ul>
+
+  <h4>Added</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon change-new">+</span> All 3 video prompts shown immediately</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Step-by-step recording process preview</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Example response to reduce ambiguity</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> "Start Recording Now" primary CTA</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> "Not ready? We'll email you" escape hatch</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Time estimate ("8-12 minutes")</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Preparation tip ("No wrong answers")</li>
+  </ul>
+
+  <h4>Hypotheses Tested</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon">H5</span> Kira handoff is primary drop point</li>
+    <li class="change-item"><span class="change-icon">H6</span> No preview = anxiety = drop-off (biggest hidden friction)</li>
+    <li class="change-item"><span class="change-icon">H7</span> MC-to-Kira transition breaks trust</li>
+  </ul>
+
+  <div class="metrics-card">
+    <h4 style="margin-top:0">Success Metrics</h4>
+    <div class="metric-row">
+      <span class="metric-label">Info form -> video start</span>
+      <span class="metric-val"><span class="metric-before">~10%</span><span class="metric-arrow">&rarr;</span><span class="metric-after">18-22%</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Video start -> completion</span>
+      <span class="metric-val"><span class="metric-before">TBD</span><span class="metric-arrow">&rarr;</span><span class="metric-after">Track</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">"Start Now" vs email click</span>
+      <span class="metric-val"><span class="metric-before">N/A</span><span class="metric-arrow">&rarr;</span><span class="metric-after">Track ratio</span></span>
+    </div>
+    <div class="metric-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;margin-top:6px">
+      <span class="metric-label" style="color:var(--mc-gold)">Impact at scale</span>
+      <span class="metric-val" style="color:var(--mc-gold);font-size:11px">+2K-4K video starts</span>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+  <nav class="nav"><div class="nav-logo">MasterClass <span>Executive</span></div></nav>
+
+  <div class="state-before" id="stateBefore">
+    <div class="before-check">&#10003;</div>
+    <div class="before-title">You're All Set!</div>
+    <div class="before-body">We emailed you with next steps for your MasterClass Executive application. Check your inbox.</div>
+    <div class="dead-end-tag">Momentum dies here. User waits for email.</div>
+  </div>
+
+  <div class="state-after" id="stateAfter">
+    <div class="handoff-header">
+      <div class="handoff-check">&#10003;</div>
+      <div class="handoff-title">Great Start. Here's What's Next.</div>
+      <div class="handoff-subtitle">Your application is in progress. Complete the video to finalize it.</div>
+    </div>
+    <div class="handoff-grid">
+      <div class="card">
+        <div class="card-badge"><span class="dot"></span> Your 3 Video Prompts</div>
+        <ul class="prompt-list">
+          <li class="prompt-item"><div class="prompt-num">Prompt 1</div><div class="prompt-text">What's the biggest professional challenge you're facing, and how could AI help?</div><div class="prompt-meta">90 sec &middot; on camera</div></li>
+          <li class="prompt-item"><div class="prompt-num">Prompt 2</div><div class="prompt-text">Describe a time you had to learn something completely new to succeed.</div><div class="prompt-meta">90 sec &middot; on camera</div></li>
+          <li class="prompt-item"><div class="prompt-num">Prompt 3</div><div class="prompt-text">What would you bring to the MasterClass Executive community?</div><div class="prompt-meta">90 sec &middot; on camera</div></li>
+        </ul>
+        <div class="prep-tip"><strong>Tip:</strong> No wrong answers. We want authenticity, not polish. Most finish in under 10 min.</div>
+      </div>
+      <div class="right-stack">
+        <div class="card">
+          <div class="card-title"><span class="card-icon">&#9654;</span> Recording Process</div>
+          <div class="flow-step"><span class="flow-dot filled"></span><div><div class="flow-label">Quick Setup</div><div class="flow-detail">Camera + mic (30 sec)</div></div></div>
+          <div class="flow-step"><span class="flow-dot filled"></span><div><div class="flow-label">Practice Round</div><div class="flow-detail">One warmup — not scored</div></div></div>
+          <div class="flow-step"><span class="flow-dot"></span><div><div class="flow-label">3 Prompts</div><div class="flow-detail">90 sec each — shown on the left</div></div></div>
+          <div class="flow-step"><span class="flow-dot"></span><div><div class="flow-label">Submit</div><div class="flow-detail">Review and send. Decision in ~2 weeks.</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon">&#128172;</span> Strong Response Example</div>
+          <div class="example-box">
+            <div class="example-label">For Prompt 1</div>
+            <div class="example-text">"I lead product at a mid-size fintech. Our CEO wants AI in every product line by Q3. I've been reading everything but don't have a framework for where AI creates real value vs. hype."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="handoff-cta">
+      <button class="start-btn">Start Recording Now &rarr;</button>
+      <div class="timer-badge">&#9200; Most finish in 8-12 minutes</div>
+      <div class="later-link">Not ready? <strong>We'll email you a link</strong> — come back anytime.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showBefore(){
+  document.getElementById('stateBefore').classList.remove('hidden');
+  document.getElementById('stateAfter').classList.remove('visible');
+  document.getElementById('btnBefore').classList.add('active');
+  document.getElementById('btnAfter').classList.remove('active');
+}
+function showAfter(){
+  document.getElementById('stateBefore').classList.add('hidden');
+  document.getElementById('stateAfter').classList.add('visible');
+  document.getElementById('btnAfter').classList.add('active');
+  document.getElementById('btnBefore').classList.remove('active');
+}
+</script>
+</body>
+</html>

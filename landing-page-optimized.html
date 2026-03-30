@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MasterClass Executive — Landing Page A/B Test Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mc-black: #0a0a0a;
+  --mc-gold: #c8a951;
+  --mc-gold-light: #e8d48b;
+  --mc-red: #e63946;
+  --mc-white: #ffffff;
+  --mc-green: #22c55e;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--mc-black); color: var(--mc-white); font-family: var(--font-body); overflow-x: hidden; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed;
+  top: 0; right: 0;
+  width: 320px;
+  height: 100vh;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 24px 20px;
+  transition: transform 0.3s;
+}
+.sidebar.collapsed { transform: translateX(280px); }
+.sidebar-toggle {
+  position: absolute;
+  left: -36px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 72px;
+  background: rgba(20,20,20,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar h3 {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mc-gold);
+  margin-bottom: 16px;
+}
+.sidebar h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--mc-white);
+}
+.change-list { list-style: none; margin-bottom: 8px; }
+.change-item {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  padding: 6px 0;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.change-icon { flex-shrink: 0; font-size: 14px; }
+.change-new { color: var(--mc-green); }
+.change-removed { color: var(--mc-red); }
+.change-modified { color: var(--mc-gold); }
+
+.metrics-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 16px;
+}
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.metric-label { color: rgba(255,255,255,0.5); }
+.metric-val { font-weight: 700; }
+.metric-before { color: rgba(255,255,255,0.4); }
+.metric-after { color: var(--mc-green); }
+.metric-arrow { color: rgba(255,255,255,0.3); margin: 0 6px; }
+
+/* ─── VIEW TOGGLE ─── */
+.view-toggle {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: flex;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+.toggle-btn {
+  padding: 10px 24px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.toggle-btn.active { background: var(--mc-gold); color: var(--mc-black); }
+
+/* ─── VARIANT SWITCHER ─── */
+.variant-switcher {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: none;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.variant-switcher.visible { display: flex; }
+.var-btn {
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: none;
+  color: rgba(255,255,255,0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.var-btn:hover, .var-btn.active { background: var(--mc-gold); color: var(--mc-black); border-color: var(--mc-gold); }
+
+.main-content { margin-right: 320px; transition: margin-right 0.3s; }
+.main-content.full { margin-right: 40px; }
+
+/* ─── URGENCY BAR ─── */
+.urgency-bar {
+  background: var(--mc-gold);
+  color: var(--mc-black);
+  text-align: center;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+}
+.urgency-bar.visible { display: flex; }
+.countdown { display: flex; gap: 8px; align-items: center; }
+.countdown-unit {
+  background: var(--mc-black);
+  color: var(--mc-gold);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.seats-count { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+/* ─── NAV ─── */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 48px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav-logo { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+.nav-logo span { color: var(--mc-gold); }
+.nav-right { display: flex; align-items: center; gap: 24px; }
+.nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 500; }
+.nav-cta {
+  display: inline-flex;
+  background: var(--mc-gold);
+  color: var(--mc-black);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ─── HERO ─── */
+.hero {
+  padding: 80px 48px 60px;
+  text-align: center;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center top, rgba(200,169,81,0.06) 0%, transparent 60%);
+}
+.hero-badge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(200,169,81,0.12);
+  border: 1px solid rgba(200,169,81,0.25);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  position: relative;
+}
+.hero-badge.visible { display: inline-flex; }
+.hero-badge::before { content:''; width:6px; height:6px; background:var(--mc-gold); border-radius:50%; animation:blink 1.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.12;
+  max-width: 720px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.hero-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.7);
+  max-width: 560px;
+  margin-bottom: 36px;
+  position: relative;
+}
+.hero-cta-group { display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; }
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mc-gold);
+  color: var(--mc-black);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.cta-btn:hover { background: var(--mc-gold-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,169,81,0.3); }
+.cta-subtext { font-size: 13px; color: rgba(255,255,255,0.45); display: none; }
+.cta-subtext.visible { display: block; }
+
+/* ─── SOCIAL PROOF BAR ─── */
+.social-proof-bar {
+  padding: 20px 48px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+}
+.social-proof-bar.visible { display: flex; }
+.proof-item { display: flex; align-items: center; gap: 8px; }
+.proof-num { font-weight: 700; color: var(--mc-white); }
+.proof-dot { width: 4px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 50%; }
+.live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mc-gold); font-weight: 600; }
+.live-dot { width:8px; height:8px; background:#22c55e; border-radius:50%; animation:livePulse 1.5s ease-in-out infinite; }
+@keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0)} }
+
+/* ─── WHAT TO EXPECT ─── */
+.what-to-expect { padding: 60px 48px; display: none; justify-content: center; }
+.what-to-expect.visible { display: flex; }
+.expect-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 36px 44px;
+  max-width: 760px;
+  width: 100%;
+}
+.expect-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 28px; text-align: center; }
+.expect-steps { display: flex; gap: 24px; justify-content: center; }
+.expect-step { flex: 1; text-align: center; position: relative; }
+.expect-step:not(:last-child)::after { content:''; position:absolute; top:24px; right:-14px; width:24px; height:2px; background:rgba(255,255,255,0.15); }
+.step-circle {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(200,169,81,0.12);
+  border: 2px solid rgba(200,169,81,0.3);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-weight: 700; color: var(--mc-gold); font-size: 17px;
+}
+.step-label { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.step-time { font-size: 12px; color: var(--mc-gold); font-weight: 600; }
+.step-detail { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+/* ─── INSTRUCTORS ─── */
+.instructors { padding: 60px 48px; text-align: center; }
+.instructors-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.instructors-sub { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 36px; }
+.instructor-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; max-width: 860px; margin: 0 auto; }
+.instructor-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 24px 16px;
+  transition: all 0.2s;
+}
+.instructor-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(200,169,81,0.2); }
+.instructor-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,rgba(200,169,81,0.3),rgba(200,169,81,0.1));
+  margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: var(--mc-gold); font-family: var(--font-display);
+}
+.instructor-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.instructor-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* ─── FOR YOU ─── */
+.for-you { padding: 60px 48px; display: none; justify-content: center; }
+.for-you.visible { display: flex; }
+.for-you-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 36px 44px;
+  max-width: 660px;
+  width: 100%;
+}
+.for-you-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+.for-you-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 36px; }
+.for-who { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(30,30,30,0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  z-index: 999;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#6366f1,#8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.toast-time { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+.proto-label {
+  position: fixed;
+  bottom: 24px;
+  right: 340px;
+  background: var(--mc-red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 6px;
+  z-index: 1001;
+  transition: right 0.3s;
+}
+</style>
+</head>
+<body>
+
+<div class="proto-label" id="protoLabel">Prototype — Bet 1 + 2 (Landing Page)</div>
+
+<!-- VIEW TOGGLE -->
+<div class="view-toggle">
+  <button class="toggle-btn active" id="btnBefore" onclick="showBefore()">Before (Current)</button>
+  <button class="toggle-btn" id="btnAfter" onclick="showAfter()">After (Proposed)</button>
+</div>
+
+<!-- VARIANT SWITCHER -->
+<div class="variant-switcher" id="variantSwitcher">
+  <button class="var-btn active" onclick="switchVariant('fomo',this)">FOMO</button>
+  <button class="var-btn" onclick="switchVariant('price',this)">Price</button>
+  <button class="var-btn" onclick="switchVariant('curriculum',this)">Curriculum</button>
+  <button class="var-btn" onclick="switchVariant('instructors',this)">Instructors</button>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()">&#9664;</button>
+  <h3>Changes Highlighted</h3>
+
+  <h4>New Elements</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon change-new">+</span> Urgency bar with countdown timer + seats remaining</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Founding cohort badge above headline</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> "Takes 30 seconds. No commitment." subtext</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Live social proof bar (applied count, avg experience)</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> "What to Expect" 3-step preview</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> "Is This for You?" self-selection (from On Deck)</li>
+    <li class="change-item"><span class="change-icon change-new">+</span> Real-time toast notifications ("X from Google just applied")</li>
+  </ul>
+
+  <h4>Modified</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon change-modified">~</span> Hero headline: multivariate test with 4 messaging variants</li>
+    <li class="change-item"><span class="change-icon change-modified">~</span> CTA copy: "Apply for Free" is kept, but contextualized</li>
+  </ul>
+
+  <h4>Hypotheses Tested</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-icon">H3</span> Wrong value prop leading? (4-variant test)</li>
+    <li class="change-item"><span class="change-icon">H4</span> No urgency/scarcity signals? (countdown + seats)</li>
+  </ul>
+
+  <div class="metrics-card">
+    <h4 style="margin-top:0">Success Metrics</h4>
+    <div class="metric-row">
+      <span class="metric-label">LP -> info form rate</span>
+      <span class="metric-val"><span class="metric-before">10%</span><span class="metric-arrow">&rarr;</span><span class="metric-after">13-15%</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Time on page</span>
+      <span class="metric-val"><span class="metric-before">TBD</span><span class="metric-arrow">&rarr;</span><span class="metric-after">+30%</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">CTA click rate</span>
+      <span class="metric-val"><span class="metric-before">TBD</span><span class="metric-arrow">&rarr;</span><span class="metric-after">Track</span></span>
+    </div>
+    <div class="metric-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;margin-top:6px">
+      <span class="metric-label" style="color:var(--mc-gold)">Impact at scale</span>
+      <span class="metric-val" style="color:var(--mc-gold);font-size:11px">+5K-10K info forms</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+
+  <!-- URGENCY BAR -->
+  <div class="urgency-bar" id="urgencyBar">
+    <span class="seats-count">Only <strong id="seatsLeft">347</strong> of 500 founding seats remain</span>
+    <span>|</span>
+    <span>Applications close in</span>
+    <div class="countdown">
+      <span class="countdown-unit" id="days">14</span>d
+      <span class="countdown-unit" id="hours">08</span>h
+      <span class="countdown-unit" id="minutes">32</span>m
+      <span class="countdown-unit" id="seconds">47</span>s
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">MasterClass <span>Executive</span></div>
+    <div class="nav-right">
+      <a href="#" class="nav-link">Program Details</a>
+      <a href="#" class="nav-link">Instructors</a>
+      <a href="#" class="nav-link">Pricing</a>
+      <button class="nav-cta">Apply Free</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge" id="heroBadge">Founding Cohort — Limited to 500</div>
+    <h1 class="hero-title" id="heroTitle">Work Changed.<br>Education Didn't.</h1>
+    <p class="hero-subtitle" id="heroSubtitle">MasterClass Executive is an AI-powered business program from Chicago Booth, taught by the world's best.</p>
+    <div class="hero-cta-group">
+      <button class="cta-btn" id="heroCta">Apply for Free &rarr;</button>
+      <span class="cta-subtext" id="ctaSub">Takes 30 seconds to start. No commitment.</span>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF BAR -->
+  <div class="social-proof-bar" id="socialBar">
+    <div class="live-indicator"><span class="live-dot"></span> Live</div>
+    <div class="proof-item"><span class="proof-num" id="appliedCount">1,247</span> professionals have applied</div>
+    <div class="proof-dot"></div>
+    <div class="proof-item">Avg: <span class="proof-num">12 yrs</span> experience</div>
+    <div class="proof-dot"></div>
+    <div class="proof-item">From <span class="proof-num">Fortune 500</span> companies</div>
+  </div>
+
+  <!-- WHAT TO EXPECT -->
+  <section class="what-to-expect" id="expectSection">
+    <div class="expect-card">
+      <div class="expect-title">What to Expect</div>
+      <div class="expect-steps">
+        <div class="expect-step">
+          <div class="step-circle">1</div>
+          <div class="step-label">Quick Info</div>
+          <div class="step-time">30 seconds</div>
+          <div class="step-detail">Name, title, LinkedIn</div>
+        </div>
+        <div class="expect-step">
+          <div class="step-circle">2</div>
+          <div class="step-label">Short Video</div>
+          <div class="step-time">~10 minutes</div>
+          <div class="step-detail">3 conversational prompts</div>
+        </div>
+        <div class="expect-step">
+          <div class="step-circle">3</div>
+          <div class="step-label">Decision</div>
+          <div class="step-time">Within 2 weeks</div>
+          <div class="step-detail">We'll email your result</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTRUCTORS -->
+  <section class="instructors">
+    <div class="instructors-title">Learn from the Best</div>
+    <div class="instructors-sub">Industry leaders teaching what they do, not what they studied</div>
+    <div class="instructor-grid">
+      <div class="instructor-card"><div class="instructor-avatar">RD</div><div class="instructor-name">Ray Dalio</div><div class="instructor-role">Founder, Bridgewater</div></div>
+      <div class="instructor-card"><div class="instructor-avatar">IN</div><div class="instructor-name">Indra Nooyi</div><div class="instructor-role">Former CEO, PepsiCo</div></div>
+      <div class="instructor-card"><div class="instructor-avatar">MC</div><div class="instructor-name">Mark Cuban</div><div class="instructor-role">Entrepreneur & Investor</div></div>
+      <div class="instructor-card"><div class="instructor-avatar">GV</div><div class="instructor-name">Gary Vaynerchuk</div><div class="instructor-role">CEO, VaynerMedia</div></div>
+    </div>
+  </section>
+
+  <!-- FOR YOU -->
+  <section class="for-you" id="forYouSection">
+    <div class="for-you-card">
+      <div class="for-you-title">Is This for You?</div>
+      <div class="for-you-grid">
+        <div class="for-who"><span style="color:#22c55e">&#10003;</span> 5+ years professional experience</div>
+        <div class="for-who"><span style="color:#22c55e">&#10003;</span> Want practical AI skills, not theory</div>
+        <div class="for-who"><span style="color:#22c55e">&#10003;</span> Self-directed learner</div>
+        <div class="for-who"><span style="color:#22c55e">&#10003;</span> Want a credential, not a 2-year program</div>
+        <div class="for-who"><span style="color:#ef4444">&#10007;</span> Looking for entry-level training</div>
+        <div class="for-who"><span style="color:#ef4444">&#10007;</span> Prefer fully in-person education</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="socialToast">
+  <div class="toast-avatar" id="toastAvatar">JK</div>
+  <div>
+    <div id="toastText"><strong>Jessica K.</strong> from Google just applied</div>
+    <div class="toast-time" id="toastTime">2 minutes ago</div>
+  </div>
+</div>
+
+<script>
+const beforeState = {
+  title: 'Work Changed.<br>Education Didn\'t.',
+  subtitle: 'MasterClass Executive is an AI-powered business program from Chicago Booth, taught by the world\'s best.',
+  cta: 'Apply for Free &rarr;'
+};
+
+const variants = {
+  fomo: { title:'500 Seats. World-Class Instructors.<br>The Founding Cohort Starts Now.', subtitle:'AI-powered executive program from Chicago Booth. Ray Dalio, Indra Nooyi, and more. No MBA required.', cta:'Apply for Free &rarr;' },
+  price: { title:'$2,500 for a Chicago Booth<br>Executive Certificate.', subtitle:'1/60th the cost of a traditional MBA. AI-powered curriculum. Self-paced. Taught by Ray Dalio, Indra Nooyi, Mark Cuban.', cta:'See the Full Program &rarr;' },
+  curriculum: { title:'AI-Native. Practical.<br>Not Academic.', subtitle:'Master AI in business. A self-paced executive program built for how professionals learn, with Chicago Booth rigor.', cta:'Explore the Curriculum &rarr;' },
+  instructors: { title:'Ray Dalio. Indra Nooyi.<br>Mark Cuban. Your Instructors.', subtitle:'Learn AI for business from operators who built it, not professors who study it. Chicago Booth executive program.', cta:'Meet All 8 Instructors &rarr;' }
+};
+
+let isAfter = false;
+let toastTimer = null;
+
+function showBefore() {
+  isAfter = false;
+  document.getElementById('btnBefore').classList.add('active');
+  document.getElementById('btnAfter').classList.remove('active');
+  document.getElementById('variantSwitcher').classList.remove('visible');
+  document.getElementById('urgencyBar').classList.remove('visible');
+  document.getElementById('heroBadge').classList.remove('visible');
+  document.getElementById('ctaSub').classList.remove('visible');
+  document.getElementById('socialBar').classList.remove('visible');
+  document.getElementById('expectSection').classList.remove('visible');
+  document.getElementById('forYouSection').classList.remove('visible');
+  document.getElementById('heroTitle').innerHTML = beforeState.title;
+  document.getElementById('heroSubtitle').textContent = beforeState.subtitle;
+  document.getElementById('heroCta').innerHTML = beforeState.cta;
+  document.getElementById('socialToast').classList.remove('show');
+  if (toastTimer) clearTimeout(toastTimer);
+}
+
+function showAfter() {
+  isAfter = true;
+  document.getElementById('btnAfter').classList.add('active');
+  document.getElementById('btnBefore').classList.remove('active');
+  document.getElementById('variantSwitcher').classList.add('visible');
+  document.getElementById('urgencyBar').classList.add('visible');
+  document.getElementById('heroBadge').classList.add('visible');
+  document.getElementById('ctaSub').classList.add('visible');
+  document.getElementById('socialBar').classList.add('visible');
+  document.getElementById('expectSection').classList.add('visible');
+  document.getElementById('forYouSection').classList.add('visible');
+  switchVariant('fomo', document.querySelector('.var-btn'));
+  scheduleToast();
+}
+
+function switchVariant(key, btn) {
+  const v = variants[key];
+  document.getElementById('heroTitle').innerHTML = v.title;
+  document.getElementById('heroSubtitle').textContent = v.subtitle;
+  document.getElementById('heroCta').innerHTML = v.cta;
+  document.querySelectorAll('.var-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const mc = document.getElementById('mainContent');
+  const pl = document.getElementById('protoLabel');
+  sb.classList.toggle('collapsed');
+  mc.classList.toggle('full');
+  const collapsed = sb.classList.contains('collapsed');
+  pl.style.right = collapsed ? '60px' : '340px';
+  sb.querySelector('.sidebar-toggle').innerHTML = collapsed ? '&#9654;' : '&#9664;';
+}
+
+// Countdown
+(function(){
+  const end = new Date(); end.setDate(end.getDate()+14); end.setHours(23,59,59);
+  setInterval(()=>{
+    const d=end-new Date();
+    document.getElementById('days').textContent=String(Math.floor(d/864e5)).padStart(2,'0');
+    document.getElementById('hours').textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');
+    document.getElementById('minutes').textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');
+    document.getElementById('seconds').textContent=String(Math.floor(d%6e4/1e3)).padStart(2,'0');
+  },1000);
+})();
+
+// Toast
+const people=[{i:'JK',n:'Jessica K.',c:'Google'},{i:'MR',n:'Marcus R.',c:'McKinsey'},{i:'SP',n:'Sarah P.',c:'Stripe'},{i:'DL',n:'David L.',c:'Amazon'},{i:'AC',n:'Amanda C.',c:'Nike'}];
+let ti=0;
+function scheduleToast(){
+  toastTimer=setTimeout(()=>{
+    if(!isAfter)return;
+    const p=people[ti%people.length];
+    document.getElementById('toastAvatar').textContent=p.i;
+    document.getElementById('toastText').innerHTML=`<strong>${p.n}</strong> from ${p.c} just applied`;
+    document.getElementById('socialToast').classList.add('show');
+    ti++;
+    setTimeout(()=>document.getElementById('socialToast').classList.remove('show'),4000);
+    scheduleToast();
+  },Math.random()*12000+8000);
+}
+</script>
+</body>
+</html>

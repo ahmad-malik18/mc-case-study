@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MasterClass — Cross-Platform Upsell on Instructor Page (Before/After)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mc-black: #0a0a0a;
+  --mc-gold: #c8a951;
+  --mc-gold-light: #e8d48b;
+  --mc-white: #ffffff;
+  --mc-red: #e63946;
+  --mc-green: #22c55e;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--mc-black); color: var(--mc-white); font-family: var(--font-body); overflow-x: hidden; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; top: 0; right: 0;
+  width: 320px; height: 100vh;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000; overflow-y: auto; padding: 24px 20px;
+}
+.sidebar h3 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 16px; }
+.sidebar h4 { font-size: 13px; font-weight: 700; margin-top: 20px; margin-bottom: 10px; }
+.change-list { list-style: none; margin-bottom: 8px; }
+.change-item { display: flex; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.65); padding: 5px 0; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.change-new { color: var(--mc-green); }
+.metrics-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; margin-top: 16px; }
+.metric-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; }
+.metric-label { color: rgba(255,255,255,0.5); }
+.metric-val { font-weight: 700; }
+.metric-before { color: rgba(255,255,255,0.4); }
+.metric-after { color: var(--mc-green); }
+.metric-arrow { color: rgba(255,255,255,0.3); margin: 0 6px; }
+
+.note-card { background: rgba(200,169,81,0.06); border: 1px solid rgba(200,169,81,0.15); border-radius: 8px; padding: 12px; margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+.note-card strong { color: var(--mc-gold); }
+
+/* ─── TOGGLE ─── */
+.view-toggle {
+  position: fixed; top: 16px; left: calc(50% - 160px); z-index: 1001;
+  display: flex; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border-radius: 100px; border: 1px solid rgba(255,255,255,0.12); overflow: hidden;
+}
+.toggle-btn { padding: 10px 24px; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; background: none; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.25s; }
+.toggle-btn.active { background: var(--mc-gold); color: var(--mc-black); }
+
+.main-content { margin-right: 320px; }
+
+/* ─── MC NAV ─── */
+.mc-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 48px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(10,10,10,0.95);
+}
+.mc-logo { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.mc-nav-links { display: flex; gap: 24px; align-items: center; }
+.mc-nav-link { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13px; font-weight: 500; }
+.mc-search { width: 180px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 7px 12px; color: var(--mc-white); font-size: 12px; font-family: var(--font-body); outline: none; }
+.mc-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+
+/* ─── HERO ─── */
+.instructor-hero { position: relative; height: 380px; overflow: hidden; display: flex; align-items: flex-end; }
+.hero-bg { position: absolute; top:0;left:0;right:0;bottom:0; background: linear-gradient(135deg,#1a1a2e 0%,#0a0a0a 60%,#1a0a0a 100%); }
+.hero-gradient { position: absolute; bottom:0;left:0;right:0; height:180px; background: linear-gradient(transparent,var(--mc-black)); }
+.hero-content { position: relative; z-index: 2; padding: 0 48px 36px; }
+.hero-badge-mc { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 10px; display: block; }
+.instructor-name-hero { font-family: var(--font-display); font-size: 44px; font-weight: 800; margin-bottom: 6px; }
+.instructor-tagline { font-size: 18px; color: rgba(255,255,255,0.65); margin-bottom: 18px; }
+.hero-actions { display: flex; gap: 12px; }
+.play-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--mc-white); color: var(--mc-black); font-family: var(--font-body); font-size: 14px; font-weight: 700; padding: 12px 28px; border-radius: 7px; border: none; cursor: pointer; }
+.save-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); color: var(--mc-white); font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer; }
+
+/* ─── EXEC BANNER ─── */
+.exec-banner {
+  margin: 20px 48px;
+  background: linear-gradient(135deg,rgba(200,169,81,0.08),rgba(200,169,81,0.02));
+  border: 1px solid rgba(200,169,81,0.2);
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: none;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  animation: bannerSlide 0.45s ease;
+}
+.exec-banner.visible { display: flex; }
+@keyframes bannerSlide { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.exec-banner::before { content:''; position:absolute; top:0;left:0; width:4px; height:100%; background:var(--mc-gold); border-radius:4px 0 0 4px; }
+
+.banner-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(200,169,81,0.12); border-radius: 10px; padding: 14px 18px; min-width: 72px; flex-shrink: 0; }
+.banner-badge-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 3px; }
+.banner-badge-icon { font-size: 24px; }
+
+.banner-content { flex: 1; }
+.banner-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.new-tag { background: var(--mc-red); color: white; font-size: 8px; padding: 2px 7px; border-radius: 100px; }
+.banner-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 5px; line-height: 1.3; }
+.banner-desc { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.45; }
+.banner-meta { display: flex; align-items: center; gap: 14px; margin-top: 7px; }
+.banner-stat { font-size: 11px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 3px; }
+.banner-stat strong { color: var(--mc-gold); }
+
+.banner-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.apply-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--mc-gold); color: var(--mc-black); font-family: var(--font-body); font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 7px; border: none; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
+.apply-btn:hover { background: var(--mc-gold-light); transform: translateY(-1px); }
+.banner-seats { font-size: 10px; color: rgba(255,255,255,0.35); }
+.banner-dismiss { position: absolute; top: 10px; right: 12px; background: none; border: none; color: rgba(255,255,255,0.25); font-size: 16px; cursor: pointer; }
+
+/* ─── LESSONS ─── */
+.course-content { padding: 36px 48px; }
+.section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.lessons-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.lesson-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.lesson-card:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+.lesson-thumb { height: 110px; background: linear-gradient(135deg,rgba(200,169,81,0.08),rgba(0,0,0,0.2)); display: flex; align-items: center; justify-content: center; position: relative; }
+.lesson-play { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.lesson-dur { position: absolute; bottom: 6px; right: 8px; background: rgba(0,0,0,0.65); font-size: 10px; padding: 2px 7px; border-radius: 3px; color: rgba(255,255,255,0.75); }
+.lesson-info { padding: 12px; }
+.lesson-num { font-size: 10px; color: rgba(255,255,255,0.3); margin-bottom: 3px; }
+.lesson-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
+
+/* ─── ALSO TEACHES ─── */
+.also-teaches {
+  margin: 28px 48px;
+  background: rgba(200,169,81,0.04);
+  border: 1px dashed rgba(200,169,81,0.18);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: none;
+  align-items: center;
+  gap: 14px;
+}
+.also-teaches.visible { display: flex; }
+.at-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,rgba(200,169,81,0.2),rgba(200,169,81,0.05)); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--mc-gold); font-family: var(--font-display); flex-shrink: 0; }
+.at-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+.at-text strong { color: var(--mc-white); }
+.at-link { color: var(--mc-gold); text-decoration: none; font-weight: 600; font-size: 12px; }
+
+.proto-label { position: fixed; bottom: 24px; right: 340px; background: var(--mc-red); color: white; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; z-index: 1001; }
+</style>
+</head>
+<body>
+
+<div class="proto-label">Prototype — Bet 1 (Cross-Sell)</div>
+
+<div class="view-toggle">
+  <button class="toggle-btn active" id="btnBefore" onclick="showBefore()">Before: No Cross-Sell</button>
+  <button class="toggle-btn" id="btnAfter" onclick="showAfter()">After: Executive Banner</button>
+</div>
+
+<div class="sidebar">
+  <h3>Changes Highlighted</h3>
+
+  <h4>Added</h4>
+  <ul class="change-list">
+    <li class="change-item"><span class="change-new">+</span> Contextual banner: "Ray Dalio is teaching in the Founding Cohort"</li>
+    <li class="change-item"><span class="change-new">+</span> Inline "Also teaches in Executive" after lesson list</li>
+    <li class="change-item"><span class="change-new">+</span> "Apply for Free" CTA with seats remaining</li>
+    <li class="change-item"><span class="change-new">+</span> Price + certificate + seat count metadata</li>
+    <li class="change-item"><span class="change-new">+</span> Dismissible (respects user choice)</li>
+  </ul>
+
+  <h4>Why This Works</h4>
+  <ul class="change-list">
+    <li class="change-item"><span style="color:var(--mc-gold)">&#9654;</span> Users browsing Dalio's class are already engaged with his content</li>
+    <li class="change-item"><span style="color:var(--mc-gold)">&#9654;</span> Existing MC subscribers = highest trust segment</li>
+    <li class="change-item"><span style="color:var(--mc-gold)">&#9654;</span> Zero acquisition cost (organic cross-sell)</li>
+    <li class="change-item"><span style="color:var(--mc-gold)">&#9654;</span> Can deploy to all 8 Executive instructor pages</li>
+  </ul>
+
+  <div class="metrics-card">
+    <h4 style="margin-top:0">Success Metrics</h4>
+    <div class="metric-row">
+      <span class="metric-label">Banner CTR</span>
+      <span class="metric-val"><span class="metric-before">N/A</span><span class="metric-arrow">&rarr;</span><span class="metric-after">2-5%</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">LP visitors from cross-sell</span>
+      <span class="metric-val"><span class="metric-before">0</span><span class="metric-arrow">&rarr;</span><span class="metric-after">+30-50K</span></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Cross-sell -> info form rate</span>
+      <span class="metric-val"><span class="metric-after">Est. 15-20%</span></span>
+    </div>
+    <div class="metric-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;margin-top:4px">
+      <span class="metric-label" style="color:var(--mc-gold)">Expected info form starts</span>
+      <span class="metric-val" style="color:var(--mc-gold);font-size:11px">+5-10K</span>
+    </div>
+  </div>
+
+  <div class="note-card">
+    <strong>Scale:</strong> Deploy across all 8 Executive instructor pages (Dalio, Nooyi, Cuban, Vaynerchuk, etc.). Each instructor page gets a personalized banner. Ships in days.
+  </div>
+</div>
+
+<div class="main-content">
+  <nav class="mc-nav">
+    <div class="mc-logo">MasterClass</div>
+    <div class="mc-nav-links">
+      <a href="#" class="mc-nav-link">Categories</a>
+      <a href="#" class="mc-nav-link">New</a>
+      <a href="#" class="mc-nav-link">My List</a>
+      <input type="text" class="mc-search" placeholder="Search...">
+      <div class="mc-avatar">AM</div>
+    </div>
+  </nav>
+
+  <section class="instructor-hero">
+    <div class="hero-bg"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <span class="hero-badge-mc">MasterClass</span>
+      <div class="instructor-name-hero">Ray Dalio</div>
+      <div class="instructor-tagline">Principles for Success</div>
+      <div class="hero-actions">
+        <button class="play-btn">&#9654; Play</button>
+        <button class="save-btn">&#10084; Save</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="exec-banner" id="execBanner">
+    <button class="banner-dismiss" onclick="document.getElementById('execBanner').style.display='none'">&times;</button>
+    <div class="banner-badge"><div class="banner-badge-label">New</div><div class="banner-badge-icon">&#127891;</div></div>
+    <div class="banner-content">
+      <div class="banner-eyebrow"><span class="new-tag">NEW</span> MasterClass Executive</div>
+      <div class="banner-title">Ray Dalio is teaching in the Founding Cohort</div>
+      <div class="banner-desc">AI-powered executive certificate with Chicago Booth. Go deeper with Dalio and 7 more world-class instructors.</div>
+      <div class="banner-meta">
+        <div class="banner-stat">&#127891; <strong>Chicago Booth</strong></div>
+        <div class="banner-stat">&#128176; <strong>$2,500</strong></div>
+        <div class="banner-stat">&#128100; <strong>500</strong> seats</div>
+      </div>
+    </div>
+    <div class="banner-cta">
+      <button class="apply-btn">Apply for Free &rarr;</button>
+      <div class="banner-seats">280 seats left</div>
+    </div>
+  </div>
+
+  <section class="course-content">
+    <div class="section-title">Lessons</div>
+    <div class="lessons-grid">
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">18:42</div></div><div class="lesson-info"><div class="lesson-num">Lesson 1</div><div class="lesson-title">The Power of Principles</div></div></div>
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">22:15</div></div><div class="lesson-info"><div class="lesson-num">Lesson 2</div><div class="lesson-title">Embrace Reality</div></div></div>
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">19:33</div></div><div class="lesson-info"><div class="lesson-num">Lesson 3</div><div class="lesson-title">The 5-Step Process</div></div></div>
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">24:07</div></div><div class="lesson-info"><div class="lesson-num">Lesson 4</div><div class="lesson-title">Radical Open-Mindedness</div></div></div>
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">16:50</div></div><div class="lesson-info"><div class="lesson-num">Lesson 5</div><div class="lesson-title">Understanding People</div></div></div>
+      <div class="lesson-card"><div class="lesson-thumb"><div class="lesson-play">&#9654;</div><div class="lesson-dur">21:18</div></div><div class="lesson-info"><div class="lesson-num">Lesson 6</div><div class="lesson-title">Better Decisions</div></div></div>
+    </div>
+  </section>
+
+  <div class="also-teaches" id="alsoTeaches">
+    <div class="at-avatar">RD</div>
+    <div class="at-text"><strong>Ray Dalio</strong> also teaches in <strong>MasterClass Executive</strong> — AI-powered program with Chicago Booth. <a href="#" class="at-link">Learn more &rarr;</a></div>
+  </div>
+</div>
+
+<script>
+function showBefore(){
+  document.getElementById('execBanner').classList.remove('visible');
+  document.getElementById('alsoTeaches').classList.remove('visible');
+  document.getElementById('btnBefore').classList.add('active');
+  document.getElementById('btnAfter').classList.remove('active');
+}
+function showAfter(){
+  document.getElementById('execBanner').classList.add('visible');
+  document.getElementById('alsoTeaches').classList.add('visible');
+  document.getElementById('btnAfter').classList.add('active');
+  document.getElementById('btnBefore').classList.remove('active');
+}
+</script>
+</body>
+</html>
